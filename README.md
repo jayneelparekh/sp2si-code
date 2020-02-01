@@ -1,5 +1,5 @@
 # sp2si-code
-Contains code for our work on speech to singing conversion (ICASSP 2020). Documentation is being updated currently
+This repo contains code for the paper:  Speech-to-Singing Conversion in an Encoder-Decoder Framework (ICASSP 2020). Documentation is being updated currently
 
 # Setup
 You can setup a new conda environment with the ```environment.yml``` file (recommended)
@@ -8,7 +8,9 @@ You can setup a new conda environment with the ```environment.yml``` file (recom
    ```
 
 # Data
-You will need to download the dataset (NUS-48E) and the models weigths to run the code. The NUS-48E dataset can be downloaded from <a href="https://smcnus.comp.nus.edu.sg/nus-48e-sung-and-spoken-lyrics-corpus/" rel="nofollow"> this link</a>. The downloaded dataset (folder named 'NUS_48E') should be placed in this repo. The model weights can be downloaded from <a href="https://drive.google.com/file/d/18IiV4c-OBw2gnldlo9s7z8_Bzy6iKD0H/view?usp=sharing" rel="nofollow"> here</a>. You should place the complete folder (named 'models') in the 'output' folder.
+You will need to download the dataset (NUS-48E) and the models weigths to run the code. 
+The NUS-48E dataset can be downloaded from <a href="https://smcnus.comp.nus.edu.sg/nus-48e-sung-and-spoken-lyrics-corpus/" rel="nofollow"> this link</a>. The downloaded dataset (folder named 'NUS_48E') should be placed in this repo. 
+The model weights can be downloaded from <a href="https://drive.google.com/file/d/18IiV4c-OBw2gnldlo9s7z8_Bzy6iKD0H/view?usp=sharing" rel="nofollow"> here</a>. You should place the complete folder (named 'models') in the 'output' folder.
 
 # Usage (Being updated)
 You can currently 
