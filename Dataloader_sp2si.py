@@ -42,7 +42,7 @@ class NUS_48E(Dataset):
 
     
     def __len__(self):
-        # Only approximate, not actual
+        # It's not really being used in the code as dataset size also determined by sampler, so just a random value
         return (300*10)
 
     def read_all_audio(self):
