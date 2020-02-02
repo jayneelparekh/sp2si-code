@@ -29,7 +29,7 @@ python evaluation_sp2si.py
 
 ```
 
-# To be added soon
+# To be added
 1. Pitch extraction related stuff
 2. General function to run the model on any speech file and singing file
-Need to rewrite these parts as I lost them when my hard drive crashed, that's why not added right now. Will add soon
+Need to rewrite these parts as I lost them when my hard drive crashed. Will add soon (within a few weeks)
