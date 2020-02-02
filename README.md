@@ -1,8 +1,13 @@
-# sp2si-code
-This repo contains code for the paper:  Speech-to-Singing Conversion in an Encoder-Decoder Framework (ICASSP 2020). Documentation is being updated currently
+# Speech-to-Singing Conversion
+
+* This repo is for the paper:  "Speech-to-Singing Conversion in an Encoder-Decoder Framework" by *Jayneel Parekh, Preeti Rao, Yi-Hsuan Yang* in ICASSP 2020.
+
+* Link for the [project webpage](https://jayneelparekh.github.io/icassp20/)
+
+* Documentation is being updated currently
 
 # Setup
-You can setup a new conda environment with the ```environment.yml``` file (recommended)
+You can setup a new conda environment with the ```environment.yml``` file (recommended). You can also start with [miniconda installation](https://docs.conda.io/en/latest/miniconda.html) if you are completely unfamiliar with anaconda   
    ```sh
    conda env create -f environment.yml
    ```
