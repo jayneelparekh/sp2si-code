@@ -32,13 +32,13 @@ class NUS_48E(Dataset):
         self.wlen = stft_params[2]
         self.hop = stft_params[3]
         self.all_audio = {}
+        self.fld = ['ADIZ', 'JLEE', 'JTAN', 'KENN', 'MCUR', 'MPOL', 'MPUR', 'NJAT', 'PMAR', 'SAMF', 'VKOW', 'ZHIY']
         #self.read_all_audio()
         try:
             self.load_all_audio()
         except:
             self.read_all_audio()
 
-        self.fld = ['ADIZ', 'JLEE', 'JTAN', 'KENN', 'MCUR', 'MPOL', 'MPUR', 'NJAT', 'PMAR', 'SAMF', 'VKOW', 'ZHIY']
 
     
     def __len__(self):
@@ -433,7 +433,6 @@ def extract_time(line):
     except:
         end = float(line[11:19])
     return start, end
-
 
 
 
