@@ -31,8 +31,8 @@ class NUS_48E(Dataset):
         self.nfft = stft_params[1]
         self.wlen = stft_params[2]
         self.hop = stft_params[3]
-	self.all_audio = {}
-	#self.read_all_audio()
+        self.all_audio = {}
+        #self.read_all_audio()
         try:
             self.load_all_audio()
         except:
@@ -47,19 +47,19 @@ class NUS_48E(Dataset):
 
     def read_all_audio(self):
         print ('Reading audio, to collect all of it in a dictionary')
-	psongs = [['01','09',13,18], ['05','08',11,15], ['07',15,16,20], ['04',10,12,17], ['04',10,12,17], ['05',11,19,20], ['02','03','06',14], ['07',15,16,20], ['05','08',11,15], ['01','09',13,18], ['05',11,19,20], ['02','03','06',14]] # List of all singers and their songs
+        psongs = [['01','09',13,18], ['05','08',11,15], ['07',15,16,20], ['04',10,12,17], ['04',10,12,17], ['05',11,19,20], ['02','03','06',14], ['07',15,16,20], ['05','08',11,15], ['01','09',13,18], ['05',11,19,20], ['02','03','06',14]] # List of all singers and their songs
 
-	for i in range(len(self.fld)):
-	    usr = self.fld[i]
-	    for snum in psongs[i]:
-		file_path1 = self.root_dir + str(usr) + '/sing/' + str(snum) + '.wav'
-		file_path2 = self.root_dir + str(usr) + '/read/' + str(snum) + '.wav'
+        for i in range(len(self.fld)):
+            usr = self.fld[i]
+            for snum in psongs[i]:
+                file_path1 = self.root_dir + str(usr) + '/sing/' + str(snum) + '.wav'
+                file_path2 = self.root_dir + str(usr) + '/read/' + str(snum) + '.wav'
 
-		audio1 = core.load(file_path1, self.sr)[0]
-		audio2 = core.load(file_path2, self.sr)[0]
+                audio1 = core.load(file_path1, self.sr)[0]
+                audio2 = core.load(file_path2, self.sr)[0]
 
-		self.all_audio[file_path1] = audio1
-		self.all_audio[file_path2] = audio2
+                self.all_audio[file_path1] = audio1
+                self.all_audio[file_path2] = audio2
 
         f = open('NUS_data_dict.pkl', 'wb') # Saved and read from the project directory
         pickle.dump(self.all_audio, f)
@@ -71,44 +71,44 @@ class NUS_48E(Dataset):
         self.all_audio = pickle.load(pkl_file)
         pkl_file.close()
         print "All audio read & stored"
-	
+        
 
 
     def __getitem__(self, samp_info):
 
         usr = samp_info[0]   # Which user
-	snum = samp_info[1]   # Which song of the user
-	inp_start = float(samp_info[4]) * self.sr  # Start index of the time-domian signal
-	inp_end = float(samp_info[5]) * self.sr   # End index of the time-domain signal
+        snum = samp_info[1]   # Which song of the user
+        inp_start = float(samp_info[4]) * self.sr  # Start index of the time-domian signal
+        inp_end = float(samp_info[5]) * self.sr   # End index of the time-domain signal
         lines_read = samp_info[6]
         lines_sung = samp_info[7]
         
         inp_audio = np.array([])
         file_path = self.root_dir + str(usr) + '/read/' + str(snum) + '.wav'
-	inp_audio = self.all_audio[file_path][int(inp_start):int(inp_end)]
+        inp_audio = self.all_audio[file_path][int(inp_start):int(inp_end)]
         inp_audio = remove_silent_frames(inp_audio)
 
-	rps = np.random.uniform(-1.0, 1.0)
-	inp_rps = librosa.effects.pitch_shift(inp_audio, self.sr, n_steps=rps)
+        rps = np.random.uniform(-1.0, 1.0)
+        inp_rps = librosa.effects.pitch_shift(inp_audio, self.sr, n_steps=rps)
         stft_inp = core.stft(inp_audio, n_fft=self.nfft, hop_length=self.hop, win_length=self.wlen)
-	stft_rps = core.stft(inp_rps, n_fft=self.nfft, hop_length=self.hop, win_length=self.wlen)
+        stft_rps = core.stft(inp_rps, n_fft=self.nfft, hop_length=self.hop, win_length=self.wlen)
         
-	out_start = float(samp_info[2]) * self.sr  # Start index of the time signal
-	out_end = float(samp_info[3]) * self.sr   # End index of the time signal
+        out_start = float(samp_info[2]) * self.sr  # Start index of the time signal
+        out_end = float(samp_info[3]) * self.sr   # End index of the time signal
 
         file_path = self.root_dir + str(usr) + '/sing/' + str(snum) + '.wav'
         #out_audio = core.load(file_path, self.sr)[0][int(out_start):int(out_end)]
-	out_audio = self.all_audio[file_path][int(out_start):int(out_end)]
+        out_audio = self.all_audio[file_path][int(out_start):int(out_end)]
         out_rps = librosa.effects.pitch_shift(out_audio, self.sr, n_steps=rps)
         stft_out = core.stft(out_audio, n_fft=self.nfft, hop_length=self.hop, win_length=self.wlen)
         stft_rps_out = core.stft(out_rps, n_fft=self.nfft, hop_length=self.hop, win_length=self.wlen)
 
-	rate = stft_inp.shape[1]*1.0/stft_out.shape[1]
-	stft_inp_orig = 1*stft_inp
-	stft_inp = core.phase_vocoder(stft_inp, rate, self.hop)
-	stft_inp = stft_inp[:, :stft_out.shape[1]]
-	stft_rps = core.phase_vocoder(stft_rps, rate, self.hop)
-	stft_rps = stft_rps[:, :stft_out.shape[1]]
+        rate = stft_inp.shape[1]*1.0/stft_out.shape[1]
+        stft_inp_orig = 1*stft_inp
+        stft_inp = core.phase_vocoder(stft_inp, rate, self.hop)
+        stft_inp = stft_inp[:, :stft_out.shape[1]]
+        stft_rps = core.phase_vocoder(stft_rps, rate, self.hop)
+        stft_rps = stft_rps[:, :stft_out.shape[1]]
 
         #phn_matrix = np.zeros([len(cmu_phn), stft_out.shape[1]])
         phn_matrix = np.zeros(stft_out.shape[1]).astype(int)
@@ -144,8 +144,8 @@ class NUS_48E_dur(Dataset):
         self.nfft = stft_params[1]
         self.wlen = stft_params[2]
         self.hop = stft_params[3]
-	self.all_audio = {}
-	#self.read_all_audio()
+        self.all_audio = {}
+        #self.read_all_audio()
         self.load_all_audio()
         self.fld = ['ADIZ', 'JLEE', 'JTAN', 'KENN', 'MCUR', 'MPOL', 'MPUR', 'NJAT', 'PMAR', 'SAMF', 'VKOW', 'ZHIY']
 
@@ -155,21 +155,21 @@ class NUS_48E_dur(Dataset):
         return (300*10)
 
     def read_all_audio(self):
-	psongs = [['01','09',13,18], ['05','08',11,15], ['07',15,16,20], ['04',10,12,17], ['04',10,12,17], ['05',11,19,20], ['02','03','06',14], ['07',15,16,20], ['05','08',11,15], ['01','09',13,18], ['05',11,19,20], ['02','03','06',14]]
+        psongs = [['01','09',13,18], ['05','08',11,15], ['07',15,16,20], ['04',10,12,17], ['04',10,12,17], ['05',11,19,20], ['02','03','06',14], ['07',15,16,20], ['05','08',11,15], ['01','09',13,18], ['05',11,19,20], ['02','03','06',14]]
 
-	for i in range(len(self.fld)):
-	    usr = self.fld[i]
-	    for snum in psongs[i]:
-		file_path1 = self.root_dir + str(usr) + '/sing/' + str(snum) + '.wav'
-		file_path2 = self.root_dir + str(usr) + '/read/' + str(snum) + '.wav'
-	
-		audio1 = core.load(file_path1, self.sr)[0]
-		audio2 = core.load(file_path2, self.sr)[0]
+        for i in range(len(self.fld)):
+            usr = self.fld[i]
+            for snum in psongs[i]:
+                file_path1 = self.root_dir + str(usr) + '/sing/' + str(snum) + '.wav'
+                file_path2 = self.root_dir + str(usr) + '/read/' + str(snum) + '.wav'
+        
+                audio1 = core.load(file_path1, self.sr)[0]
+                audio2 = core.load(file_path2, self.sr)[0]
 
-		self.all_audio[file_path1] = audio1
-		self.all_audio[file_path2] = audio2
+                self.all_audio[file_path1] = audio1
+                self.all_audio[file_path2] = audio2
 
-	print "All audio read & stored"
+        print "All audio read & stored"
         f = open('NUS_data_dict.pkl', 'wb')
         pickle.dump(self.all_audio, f)
         f.close()
@@ -179,16 +179,16 @@ class NUS_48E_dur(Dataset):
         self.all_audio = pickle.load(pkl_file)
         pkl_file.close()
         print "All audio read & stored"
-	
+        
 
 
     def __getitem__(self, samp_info):
 
         #print samp_info[0], samp_info[1], samp_info[2], samp_info[3]
         usr = samp_info[0]   # Which user
-	snum = samp_info[1]   # Which song out of user's 4 songs
-	inp_start = float(samp_info[4]) * self.sr  # Start index of the time-domian signal
-	inp_end = float(samp_info[5]) * self.sr   # End index of the time-domain signal
+        snum = samp_info[1]   # Which song out of user's 4 songs
+        inp_start = float(samp_info[4]) * self.sr  # Start index of the time-domian signal
+        inp_end = float(samp_info[5]) * self.sr   # End index of the time-domain signal
         lines_read = samp_info[6]
         lines_sung = samp_info[7]
         
@@ -205,29 +205,29 @@ class NUS_48E_dur(Dataset):
             inp_phn_stretch = librosa.effects.time_stretch(inp_phn, stretch_rate)
             inp_audio = np.append(inp_audio, inp_phn_stretch)
         
-	rps = np.random.uniform(-1.0, 1.0)
+        rps = np.random.uniform(-1.0, 1.0)
         #rps = 3.0
-	inp_rps = librosa.effects.pitch_shift(inp_audio, self.sr, n_steps=rps)
+        inp_rps = librosa.effects.pitch_shift(inp_audio, self.sr, n_steps=rps)
         stft_inp = core.stft(inp_audio, n_fft=self.nfft, hop_length=self.hop, win_length=self.wlen)
-	stft_rps = core.stft(inp_rps, n_fft=self.nfft, hop_length=self.hop, win_length=self.wlen)
+        stft_rps = core.stft(inp_rps, n_fft=self.nfft, hop_length=self.hop, win_length=self.wlen)
         
-	out_start = float(samp_info[2]) * self.sr  # Start index of the time signal
-	out_end = float(samp_info[3]) * self.sr   # End index of the time signal
+        out_start = float(samp_info[2]) * self.sr  # Start index of the time signal
+        out_end = float(samp_info[3]) * self.sr   # End index of the time signal
 
         file_path = self.root_dir + str(usr) + '/sing/' + str(snum) + '.wav'
         #out_audio = core.load(file_path, self.sr)[0][int(out_start):int(out_end)]
-	out_audio = self.all_audio[file_path][int(out_start):int(out_end)]
+        out_audio = self.all_audio[file_path][int(out_start):int(out_end)]
         out_rps = librosa.effects.pitch_shift(out_audio, self.sr, n_steps=rps)
         stft_out = core.stft(out_audio, n_fft=self.nfft, hop_length=self.hop, win_length=self.wlen)
         stft_rps_out = core.stft(out_rps, n_fft=self.nfft, hop_length=self.hop, win_length=self.wlen)
 
-	# Making input also length of 3 seconds (if not wanted comment next 2 lines)
-	rate = stft_inp.shape[1]*1.0/stft_out.shape[1]
-	stft_inp_orig = 1*stft_inp
-	stft_inp = core.phase_vocoder(stft_inp, rate, self.hop)
-	stft_inp = stft_inp[:, :stft_out.shape[1]]
-	stft_rps = core.phase_vocoder(stft_rps, rate, self.hop)
-	stft_rps = stft_rps[:, :stft_out.shape[1]]
+        # Making input also length of 3 seconds (if not wanted comment next 2 lines)
+        rate = stft_inp.shape[1]*1.0/stft_out.shape[1]
+        stft_inp_orig = 1*stft_inp
+        stft_inp = core.phase_vocoder(stft_inp, rate, self.hop)
+        stft_inp = stft_inp[:, :stft_out.shape[1]]
+        stft_rps = core.phase_vocoder(stft_rps, rate, self.hop)
+        stft_rps = stft_rps[:, :stft_out.shape[1]]
 
         #phn_matrix = np.zeros([len(cmu_phn), stft_out.shape[1]])
         phn_matrix = np.zeros(stft_out.shape[1]).astype(int)
@@ -262,120 +262,120 @@ class NUS_48E_dur(Dataset):
 
 class nus_samp(Sampler):
     def __init__(self, root_dir, n_batch, n_iter, fld, psongs, use_word=False, randomize=True, print_elem=False, min_len=0.0):
-	self.root = root_dir
+        self.root = root_dir
         self.batch_size = n_batch
-	self.n_iter = n_iter
-	self.fld = fld
-	self.psongs = psongs
-	self.all_samp_details = []
-	self.segment_time = 3
-	self.use_word = use_word
-	self.randomize = randomize
+        self.n_iter = n_iter
+        self.fld = fld
+        self.psongs = psongs
+        self.all_samp_details = []
+        self.segment_time = 3
+        self.use_word = use_word
+        self.randomize = randomize
         self.print_elem = print_elem
-	self.cur_batch_idx = 0
-	self.samp_lenwise = {}
+        self.cur_batch_idx = 0
+        self.samp_lenwise = {}
         self.min_splen = min_len
-	self.build_samp_inline()
+        self.build_samp_inline()
 
-	# Some stats variables
-	self.inp_length = 0
-	self.out_length = 0
-	self.inout_ratio = 0
+        # Some stats variables
+        self.inp_length = 0
+        self.out_length = 0
+        self.inout_ratio = 0
 
     def stats_segments(self):
-	all_samp = self.all_samp_details
-	self.inp_length = np.array([all_samp[k][3] - all_samp[k][2] for k in range(len(all_samp))])
-	self.out_length = np.array([all_samp[k][5] - all_samp[k][4] for k in range(len(all_samp))])
-	self.inout_ratio = self.inp_length / self.out_length
+        all_samp = self.all_samp_details
+        self.inp_length = np.array([all_samp[k][3] - all_samp[k][2] for k in range(len(all_samp))])
+        self.out_length = np.array([all_samp[k][5] - all_samp[k][4] for k in range(len(all_samp))])
+        self.inout_ratio = self.inp_length / self.out_length
         return (self.inp_length, self.out_length, self.inout_ratio)
-	
+        
 
 
 
     def build_samp_inline(self):
-	for i in range(len(self.fld)):
+        for i in range(len(self.fld)):
             cur_fld = self.fld[i]
 
             for snum in self.psongs[i]:
-		phn_sung = open(self.root + 'nus-smc-corpus_48/' + cur_fld + '/sing/' + str(snum) + '.txt', "r")
+                phn_sung = open(self.root + 'nus-smc-corpus_48/' + cur_fld + '/sing/' + str(snum) + '.txt', "r")
                 phn_read = open(self.root + 'nus-smc-corpus_48/' + cur_fld + '/read/' + str(snum) + '.txt', "r")
 
-		line_start = 1
+                line_start = 1
                 line_end = 1
                 all_lines_read = phn_read.readlines()
                 all_lines_sung = phn_sung.readlines()
 
-		# First mark all the lines with big pauses (in speech lines they are most probably silences, 'sil' with > 30ms)
-		pause_line = [m for m in range(len(all_lines_sung)) if all_lines_sung[m][-4:-1] == 'sil']
-		for k in range(len(pause_line)-1):
-		    start_line = pause_line[k]
-		    end_line = pause_line[k+1]
-		    # start_line, end_line mark the lines within which all the samples will be selected
-		    # Mark all the in between words now
-		    word_line = [m for m in range(start_line, end_line+1) if all_lines_read[m][-4:-1] == 'sil']
-		    #print len(word_line)
-		    # now select two word sets
-		    for seq_len in range(3, len(word_line)):
-			cur_len_samples = []
-		        for t in range(len(word_line)-seq_len):
-			    line_start = word_line[t] + 1
-			    line_end = word_line[t+seq_len] - 1
-			    start = float(all_lines_read[line_start][0:8]) - 0.01
-			    try:
-			        end = float(all_lines_read[line_end][9:17]) + 0.01
-			    except:
-			        end = float(all_lines_read[line_end][11:19]) + 0.01
+                # First mark all the lines with big pauses (in speech lines they are most probably silences, 'sil' with > 30ms)
+                pause_line = [m for m in range(len(all_lines_sung)) if all_lines_sung[m][-4:-1] == 'sil']
+                for k in range(len(pause_line)-1):
+                    start_line = pause_line[k]
+                    end_line = pause_line[k+1]
+                    # start_line, end_line mark the lines within which all the samples will be selected
+                    # Mark all the in between words now
+                    word_line = [m for m in range(start_line, end_line+1) if all_lines_read[m][-4:-1] == 'sil']
+                    #print len(word_line)
+                    # now select two word sets
+                    for seq_len in range(3, len(word_line)):
+                        cur_len_samples = []
+                        for t in range(len(word_line)-seq_len):
+                            line_start = word_line[t] + 1
+                            line_end = word_line[t+seq_len] - 1
+                            start = float(all_lines_read[line_start][0:8]) - 0.01
+                            try:
+                                end = float(all_lines_read[line_end][9:17]) + 0.01
+                            except:
+                                end = float(all_lines_read[line_end][11:19]) + 0.01
 
-			    # Now select the input
-			    out_start = float(all_lines_sung[line_start][0:8]) - 0.01
-			    try:
-			        out_end = float(all_lines_sung[line_end][9:17]) + 0.01
-			    except:
-			        out_end = float(all_lines_sung[line_end][11:19]) + 0.01
+                            # Now select the input
+                            out_start = float(all_lines_sung[line_start][0:8]) - 0.01
+                            try:
+                                out_end = float(all_lines_sung[line_end][9:17]) + 0.01
+                            except:
+                                out_end = float(all_lines_sung[line_end][11:19]) + 0.01
                             if (end - start > self.min_splen):
-			        self.all_samp_details.append([cur_fld, snum, out_start, out_end, start, end, np.array(all_lines_read[line_start:line_end+1]), np.array(all_lines_sung[line_start:line_end+1]) ])
-			    #self.samp_lenwise[seq_len].append([cur_fld, snum, inp_start, inp_end, start, end, line_start, line_end])
+                                self.all_samp_details.append([cur_fld, snum, out_start, out_end, start, end, np.array(all_lines_read[line_start:line_end+1]), np.array(all_lines_sung[line_start:line_end+1]) ])
+                            #self.samp_lenwise[seq_len].append([cur_fld, snum, inp_start, inp_end, start, end, line_start, line_end])
 
 
 
     def RandomSelect(self):
-	if (self.use_word == False or self.use_word == True):
-	    idx_arr = range(len(self.all_samp_details))
+        if (self.use_word == False or self.use_word == True):
+            idx_arr = range(len(self.all_samp_details))
             #idx_arr = [1761, 74]
-	    if (self.randomize):
-	        random.shuffle(idx_arr)
-	        idx_arr = idx_arr[:self.batch_size]
+            if (self.randomize):
+                random.shuffle(idx_arr)
+                idx_arr = idx_arr[:self.batch_size]
                 if self.print_elem:
                     print "Samples retrieved: ", idx_arr
-	    else:
-		cur_batch = self.cur_batch_idx
-		start_idx = cur_batch * self.batch_size
-		end_idx = min(start_idx + self.batch_size, len(self.all_samp_details))
-		idx_arr = range(start_idx, end_idx)
-		print idx_arr
-		self.cur_batch_idx += 1
-		if(end_idx == len(self.all_samp_details)):
-		    self.cur_batch_idx = 0
+            else:
+                cur_batch = self.cur_batch_idx
+                start_idx = cur_batch * self.batch_size
+                end_idx = min(start_idx + self.batch_size, len(self.all_samp_details))
+                idx_arr = range(start_idx, end_idx)
+                print idx_arr
+                self.cur_batch_idx += 1
+                if(end_idx == len(self.all_samp_details)):
+                    self.cur_batch_idx = 0
                 #idx_arr = [527]
                 #idx_arr = [93]
                 #idx_arr = [464] # 93, 464, 615, 1352
                 #idx_arr = [649]
                 idx_arr = [1327]
 
-	    #return np.array(self.all_samp_details)[idx_arr]
+            #return np.array(self.all_samp_details)[idx_arr]
             #print idx_arr
             return [self.all_samp_details[idx_arr[0]]]
-		    
-	
+                    
+        
 
     def __iter__(self):
-	samples = []
-	for i in range(self.n_iter):
+        samples = []
+        for i in range(self.n_iter):
             samples.append(self.RandomSelect())
         return iter(samples)
 
     def __len__(self):
-        return self.n_iter * self.batch_size		    
+        return self.n_iter * self.batch_size                    
 
 
 
@@ -433,7 +433,6 @@ def extract_time(line):
     except:
         end = float(line[11:19])
     return start, end
-
 
 
 
