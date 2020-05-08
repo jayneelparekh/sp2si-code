@@ -63,7 +63,7 @@ def my_collate_e8(batch):
     # 8: Tensor of user ids (Not used anywhere)
     # 9: Frame-level phoneme information for singing
 
-    # Will move this function to util.py in the future 
+    # Will move this function to utils.py in the future 
  
     batch_inp, batch_out, batch_pitch_inp, batch_pitch_out, batch_rate, batch_inp_orig, batch_inp_phase, batch_out_phase, batch_out_ps, batch_usr, batch_phn = [], [], [], [], [], [], [], [], [], [], []
     size_inp = 0
@@ -245,8 +245,58 @@ def eval_sys(model_list=['PMTL', 'PMSE', 'B1', 'B2'], n_samp=30, min_length=1.0,
     return lsd
 
 
+def eval(net1, net2, speech_file_loc, melody_file_loc):
+    # Evaluates the result of net1, net2 on a given speech file and melody file
+    # speech_file_loc, melody_file_loc are strings that specify the location of the respective audio files 
+    network1, network2 = net1.eval(), net2.eval()
+    # Read input audio
+    orig_speech = core.load(speech_file_loc, sr)[0]
+    inp_speech = DL.remove_silent_frames(orig_speech)
+    #inp_speech = 1.0 * orig_speech
+    stft_inp = core.stft(inp_speech, n_fft=nfft, hop_length=hop, win_length=wlen)
+    
+    # Extract melody and create its image
+    melody = utils.MelodyExt.melody_extraction(melody_file_loc, 'runtime_folder/ref_melody')[0]
+    ref_pc = melody[:, 1]
+    ref_time = melody[:, 0]
+    const = hop * 1.0 / sr
+    new_sampling_time = np.arange(const, ref_time[-1], const)
+    interp_melody = np.interp(new_sampling_time, ref_time, ref_pc)
+    n_frames = new_sampling_time.shape[0]
+    idx1 = (1.0 * interp_melody * nfft / sr).astype(int)
+    idx2 = np.array(range(n_frames))
+    pc = np.zeros([1 + nfft/2, n_frames])
+    pc[idx1, idx2] = 1
+    pc[-1] = 1 * pc[0]
+    pc[0] = 0 * pc[0]
+  
+    # Complete input preprocessing
+    rate = stft_inp.shape[1] * 1.0 / n_frames
+    stft_inp = core.phase_vocoder(stft_inp, rate, hop) # Stretch input speech to target length
+    n_frames += 8 - n_frames%8
+    # Append zeros to make it suitable for network
+    stft_inp = np.concatenate([stft_inp, np.zeros([stft_inp.shape[0], n_frames-stft_inp.shape[1]])], axis=1)
+    pc = np.concatenate([pc, np.zeros([pc.shape[0], n_frames-pc.shape[1]])], axis=1)
+    stft_inp = np.log(1 + np.abs(stft_inp))
+    stft_inp, pc = torch.from_numpy(stft_inp).float().unsqueeze(0), torch.from_numpy(pc).float().unsqueeze(0) # Make tensors
+
+    # Extract output
+    encode2 = network2(Variable(pc.to(device)))
+    pred, encode1 = network1(Variable(stft_inp.to(device)), encode2)
+    pred = pred[0].cpu().data.numpy()
+    pred[pred < 0] = 0
+    pred = np.exp(pred) - 1
+    time_pred = 3.0 * utils.gl_rec(pred, hop, wlen, core.istft(pred, hop, wlen)) # Adding a multiplier to increase loudness
+    return time_pred  
+
+
 if __name__ == '__main__':
     args = sys.argv[1:]
+    suffix = suffix_dict['PMTL'] # Get the suffix of PMTL model
+    net1 = defModel.net_in_v2(512, 512, freq=513).to(device)
+    net2 = defModel.exp_net(512, 512, freq=513).to(device)
+    net2.load_state_dict(torch.load('output/models/net2_' + suffix + '.pt', map_location=device))
+    net1.load_state_dict(torch.load('output/models/net1_' + suffix + '.pt', map_location=device))
     random_pred(['pmtl', 'b2'])
     stats = eval_sys()
 
