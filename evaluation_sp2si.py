@@ -1,3 +1,4 @@
+import utils
 import torch
 import numpy as np
 import librosa
@@ -14,7 +15,6 @@ from torch.utils.data import Dataset, DataLoader
 from torch.utils.data.sampler import Sampler
 import random
 import itertools
-import utils
 
 print "Imported all modules"
 
@@ -136,6 +136,7 @@ def random_pred(model_list=['PMTL'], n_samp=2, min_length=1.0, fld=test_fld, pso
             if not (cur_model == 'B1' or cur_model == 'b1'):
                 network2.load_state_dict(torch.load('output/models/net2_' + suffix + '.pt', map_location=device)) # Complete
             network1.load_state_dict(torch.load('output/models/net1_' + suffix + '.pt', map_location=device))
+            network1, network2 = network1.eval(), network2.eval()
 
             # Make predictions
             encode2 = int(not cur_model == 'B1') * network2(Variable(data[3].to(device)))
@@ -200,6 +201,7 @@ def eval_sys(model_list=['PMTL', 'PMSE', 'B1', 'B2'], n_samp=30, min_length=1.0,
             if not cur_model == 'B1':
                 network2.load_state_dict(torch.load('output/models/net2_' + suffix + '.pt', map_location=device)) # Complete
             network1.load_state_dict(torch.load('output/models/net1_' + suffix + '.pt', map_location=device))
+            network1, network2 = network1.eval(), network2.eval()
 
             # Make predictions
             encode2 = int(not cur_model == 'B1') * network2(Variable(data[3].to(device)))
@@ -236,7 +238,7 @@ def eval_sys(model_list=['PMTL', 'PMSE', 'B1', 'B2'], n_samp=30, min_length=1.0,
     # Print the results
     arr = np.zeros([len(model_list), n_samp])
     for i in range(len(model_list) * n_samp):
-        arr[i % 4, i//4] = lsd[i]
+        arr[i % len(model_list), i//len(model_list)] = lsd[i]
     for i in range(len(model_list)):
         print model_list[i] + ' (mean LSD):', np.mean(arr[i])
 
@@ -245,7 +247,7 @@ def eval_sys(model_list=['PMTL', 'PMSE', 'B1', 'B2'], n_samp=30, min_length=1.0,
 
 if __name__ == '__main__':
     args = sys.argv[1:]
-    #random_pred(['pmtl', 'b2'])
+    random_pred(['pmtl', 'b2'])
     stats = eval_sys()
 
 
