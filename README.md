@@ -25,13 +25,13 @@ You can currently
 1. Compute LSD for different models on random samples generated from NUS-48E dataset (with the function eval_sys()).
 2. Compute random predictions for multiple models on the NUS-48E data (function random_pred()). 
 
-Both functions eval_sys() and random_pred() have common set of parameters:
+Both functions eval_sys() and random_pred() have some common set of parameters:
 * *model_list*: Specifies the list of models you want to compute results for. Eg. \['PMTL', 'PMSE'\]. Current available model options are 'PMTL', 'PMSE', 'B1'. 'B2'.
 * *n_samp*: Number of samples for prediction. 
 * *min_length*: Minimum length of the input speech signal (in seconds). Default value is 1.0
-* *random*: Denotes if input samples used for prediction are randomly selected from the generated samples. Default value is True
 * *fld*: List of singer folders from NUS_48E dataset for whom you want to conduct evaluation. Eg. \['ADIZ'\]. Default value is \['ADIZ', 'SAMF'\].
 * *psongs*: List of songs for evaluation, for each singer specified in fld. Eg. \[\['01', '18'\]\]. Default value is \[\['18'\], \['18'\]\].
+* *random* (Not available with random_pred() function): Denotes if input samples used for prediction are randomly selected from the generated samples. Default value is True
 
 ```
 python evaluation_sp2si.py
