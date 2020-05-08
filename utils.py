@@ -2,6 +2,10 @@ import numpy as np
 import librosa
 import librosa.core as core
 
+import os, sys
+sys.path.append(os.getcwd() + '/VocalMelodyExtPatchCNN-master')
+import MelodyExt
+
 sr = 16000
 nfft = 1024
 wlen = 1024
