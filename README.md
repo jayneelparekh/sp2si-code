@@ -4,8 +4,6 @@
 
 * Link for the [project webpage](https://jayneelparekh.github.io/icassp20/)
 
-* If you are planning to use this code already, proceed with caution! Documentation is being updated currently.
-
 # Setup
 You can setup a new conda environment with the ```environment.yml``` file (recommended). You can start with [miniconda installation](https://docs.conda.io/en/latest/miniconda.html) if you are completely unfamiliar with anaconda   
    ```sh
