@@ -18,7 +18,7 @@ You will need to download the dataset (NUS-48E), models weigths, and clone a rep
 * Download code for melody extractor system (by Li Su) [here](https://github.com/leo-so/VocalMelodyExtPatchCNN). You should extract the zip and place the folder named 'VocalMelodyExtPatchCNN-master' inside this repo (current working directory). After that you should move the file 'VocalMelodyExtPatchCNN-master/model3_patch25' with the other files of the repo (in the current working directory) 
 
 
-# Usage (Being updated)
+# Usage
 The first time you run the code, it will also organize the audio from NUS-48E in a dictionary. This can take up to 10-15 minutes.
 
 You can currently 
